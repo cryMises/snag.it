@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snag It</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#E8845A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Snag It" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:      #FDF6EE;
+      --white:      #FFFFFF;
+      --terracotta: #E8845A;
+      --terra-dark: #C96A42;
+      --brown:      #2D1F14;
+      --mocha:      #9C7B65;
+      --blush:      #E8C4A8;
+      --blush-soft: #F5E8DA;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--cream);
+      color: var(--brown);
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 0;
+    }
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      background: var(--blush-soft);
+      border: 1.5px solid var(--blush);
+      border-radius: 20px;
+      padding: 4px 10px;
+    }
+    .status-dot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--mocha);
+      font-weight: 500;
+    }
+    .dot-live {
+      width: 7px; height: 7px;
+      background: #5DB87A;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 48px 0 40px;
+      flex: 1;
+    }
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      line-height: 1.05;
+      color: var(--brown);
+      margin-bottom: 20px;
+    }
+    .hero-desc {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--mocha);
+      margin-bottom: 36px;
+      max-width: 340px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--terracotta);
+      color: white;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.18s, transform 0.12s;
+    }
+    .btn-primary:hover  { background: var(--terra-dark); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1.5px solid var(--blush);
+      margin: 40px 0;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mocha);
+      margin-bottom: 20px;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--blush-soft);
+      border: 1.5px solid var(--blush);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--terracotta);
+      margin-top: 1px;
+    }
+    .step-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 2px;
+    }
+    .step-text span {
+      font-size: 13px;
+      color: var(--mocha);
+      line-height: 1.55;
+    }
+
+    /* ── STACK PILLS ── */
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 28px;
+    }
+    .pill {
+      background: var(--white);
+      border: 1.5px solid var(--blush);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--mocha);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--blush);
+      padding-top: 32px;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="topbar">
+      <span class="badge">n8n Automation</span>
+      <span class="status-dot"><span class="dot-live"></span>Active · runs at 12:00</span>
+    </div>
+
+    <div class="hero">
+      <div class="hero-eyebrow">Event Discovery</div>
+      <h1 class="hero-title">Snag It</h1>
+      <p class="hero-desc">
+        Automatically scrapes Instagram, uses AI to find event announcements,
+        and surfaces them in a clean daily feed — no manual browsing needed.
+      </p>
+      <a href="snag-it.html" class="btn-primary">
+        Lihat Acara Hari Ini →
+      </a>
+    </div>
+
+    <hr class="divider" />
+
+    <div>
+      <div class="section-label">How it works</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <strong>Scrape</strong>
+            <span>Bright Data pulls the 5 most recent posts from Instagram every day at noon, filtered to the last 7 days.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <strong>Extract</strong>
+            <span>Mistral OCR reads text from post images. Gemini classifies each post and extracts event title, date, location, and registration info.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <strong>Serve</strong>
+            <span>Confirmed events land in a clean table, served via webhook API and displayed here as swipeable cards.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <span class="pill">⚙️ n8n</span>
+        <span class="pill">📸 Bright Data</span>
+        <span class="pill">👁️ Mistral OCR</span>
+        <span class="pill">✨ Gemini</span>
+        <span class="pill">🦙 Gemma 4 31B</span>
+      </div>
+    </div>
+
+    <div class="footer">Built with n8n · Snag It</div>
+
+  </div>
+</body>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+</html>

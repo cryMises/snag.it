@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snag It — Acara Hari Ini</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#E8845A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Snag It" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:      #FDF6EE;
+      --white:      #FFFFFF;
+      --terracotta: #E8845A;
+      --terra-dark: #C96A42;
+      --brown:      #2D1F14;
+      --mocha:      #9C7B65;
+      --blush:      #E8C4A8;
+      --blush-soft: #F5E8DA;
+    }
+
+    html, body {
+      background: var(--cream);
+      color: var(--brown);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      /* let the page scroll normally */
+      overflow-y: auto;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1.5px solid var(--blush);
+    }
+    .header-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 2px;
+    }
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      color: var(--brown);
+      line-height: 1;
+    }
+    .header-meta {
+      font-size: 12px;
+      color: var(--mocha);
+      margin-top: 4px;
+    }
+    .btn-back {
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mocha);
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-back:hover { color: var(--terracotta); }
+    .btn-refresh {
+      background: none;
+      border: 1.5px solid var(--blush);
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mocha);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-refresh:hover { border-color: var(--terracotta); color: var(--terracotta); }
+    .btn-refresh.confirmed { background: var(--terracotta); color: white; border-color: var(--terracotta); }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      padding: 14px 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1.5px solid var(--blush);
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0;
+      background: var(--white);
+      border: 1.5px solid var(--blush);
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mocha);
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .filter-chip:hover { border-color: var(--terracotta); color: var(--terracotta); }
+    .filter-chip.active { background: var(--terracotta); border-color: var(--terracotta); color: white; }
+    .chip-count {
+      background: var(--blush-soft);
+      color: var(--mocha);
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .filter-chip.active .chip-count { background: rgba(255,255,255,0.25); color: white; }
+
+    /* ── MAIN ── */
+    .main {
+      padding: 20px 0 32px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .counter {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mocha);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      padding: 0 24px;
+    }
+
+    /* ── CAROUSEL: CSS scroll-snap ── */
+    .carousel-viewport {
+      overflow-x: scroll;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      touch-action: pan-x;
+      padding: 4px 16px 8px;
+    }
+    .carousel-viewport::-webkit-scrollbar { display: none; }
+
+    .carousel-track {
+      display: flex;
+      gap: 16px;
+      /* width so all cards lay out inline */
+      width: max-content;
+    }
+
+    /* ── CARD ── */
+    .event-card {
+      /* fixed card width = viewport - 2*padding */
+      width: calc(min(480px, 100vw) - 32px);
+      background: var(--white);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(45,31,20,0.08), 0 0 0 1.5px var(--blush);
+      /* cards don't stretch in height */
+      align-self: flex-start;
+    }
+
+    .card-strip { height: 8px; width: 100%; }
+
+    .card-body { padding: 22px 22px 22px; }
+
+    .card-category {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 10px;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      line-height: 1.25;
+      color: var(--brown);
+      margin-bottom: 12px;
+    }
+    .card-info {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--mocha);
+      margin-bottom: 16px;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .card-divider {
+      border: none;
+      border-top: 1.5px solid var(--blush-soft);
+      margin-bottom: 14px;
+    }
+    .card-time {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--brown);
+      font-weight: 500;
+      line-height: 1.45;
+      margin-bottom: 12px;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .card-icon { flex-shrink: 0; margin-top: 1px; }
+    .card-registration {
+      background: var(--blush-soft);
+      border-radius: 10px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin-bottom: 18px;
+      font-size: 13px;
+      color: var(--brown);
+      line-height: 1.5;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--terracotta);
+      color: white;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.18s;
+    }
+    .btn-cta:hover { background: var(--terra-dark); }
+
+    /* ── NAV ── */
+    .carousel-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px 0;
+    }
+    .nav-arrow {
+      background: var(--white);
+      border: 1.5px solid var(--blush);
+      border-radius: 50%;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--brown);
+      transition: border-color 0.18s, color 0.18s;
+      flex-shrink: 0;
+    }
+    .nav-arrow:hover { border-color: var(--terracotta); color: var(--terracotta); }
+
+    /* ── DOTS ── */
+    .dots-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 8px;
+    }
+    .dot {
+      height: 7px;
+      width: 7px;
+      border-radius: 4px;
+      background: var(--blush);
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94), background 0.2s;
+      transform-origin: left center;
+    }
+    .dot.active { background: var(--terracotta); transform: scaleX(2.85); }
+
+    .swipe-hint {
+      text-align: center;
+      font-size: 11px;
+      color: var(--blush);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── STATES ── */
+    .loading-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--mocha);
+      font-size: 14px;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2.5px solid var(--blush);
+      border-top-color: var(--terracotta);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 16px; }
+    .empty-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--brown);
+      margin-bottom: 8px;
+    }
+    .empty-body { font-size: 14px; color: var(--mocha); line-height: 1.6; }
+
+    .no-results { text-align: center; padding: 48px 24px; }
+
+    @media (max-width: 360px) {
+      .header { padding: 16px 16px 12px; }
+      .filter-bar { padding: 12px 16px; }
+      .card-title { font-size: 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .dot { transition: none; }
+      .spinner { animation: none; border-top-color: var(--terracotta); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+  <script>
+  const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+  const WEBHOOK_URL = 'https://erma-pseudosyphilitic-unwonderfully.ngrok-free.dev/webhook/requestdata';
+
+  const CATEGORIES = [
+    { key: 'all',         label: 'Semua',       icon: '✦' },
+    { key: 'webinar',     label: 'Webinar',     icon: '💻' },
+    { key: 'competition', label: 'Lomba',       icon: '🏆' },
+    { key: 'seminar',     label: 'Seminar',     icon: '🎤' },
+    { key: 'workshop',    label: 'Workshop',    icon: '🛠' },
+    { key: 'exhibition',  label: 'Pameran',     icon: '🖼' },
+    { key: 'show',        label: 'Pertunjukan', icon: '🎭' },
+    { key: 'other',       label: 'Lainnya',     icon: '📌' },
+  ];
+
+  const GRADIENTS = {
+    webinar:     'linear-gradient(90deg,#6B8FD6,#9BB5F0)',
+    competition: 'linear-gradient(90deg,#E8845A,#F5A87A)',
+    seminar:     'linear-gradient(90deg,#7BBFA3,#A8D9C6)',
+    workshop:    'linear-gradient(90deg,#C97D4E,#E8A87A)',
+    exhibition:  'linear-gradient(90deg,#9B7BC4,#C4A0E8)',
+    show:        'linear-gradient(90deg,#D46B8A,#EBA0B8)',
+    other:       'linear-gradient(90deg,#9C7B65,#C4A08A)',
+  };
+
+  // ── APP ──
+  function App() {
+    const [events, setEvents]           = useState([]);
+    const [loading, setLoading]         = useState(true);
+    const [error, setError]             = useState(false);
+    const [activeCategory, setCategory] = useState('all');
+    const [current, setCurrent]         = useState(0);
+    const currentRef = useRef(0);
+    const setCurrentSynced = useCallback((v) => {
+      currentRef.current = v;
+      setCurrent(v);
+    }, []);
+    const [refreshed, setRefreshed]     = useState(false);
+    const viewportRef = useRef(null);
+
+    const fetchEvents = useCallback(async () => {
+      setLoading(true);
+      setError(false);
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          signal: AbortSignal.timeout(10000),
+          headers: { 'ngrok-skip-browser-warning': '1' },
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        setEvents(Array.isArray(data) ? data : []);
+      } catch (e) {
+        setError(true);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    }, []);
+
+    useEffect(() => { fetchEvents(); }, [fetchEvents]);
+
+    const handleRefresh = () => {
+      fetchEvents();
+      setRefreshed(true);
+      setTimeout(() => setRefreshed(false), 1500);
+    };
+
+    const filtered = useMemo(() => {
+      if (activeCategory === 'all') return events;
+      return events.filter(e => e.event_category === activeCategory);
+    }, [events, activeCategory]);
+
+    useEffect(() => { currentRef.current = 0; setCurrent(0); }, [activeCategory]);
+
+    const counts = useMemo(() => {
+      const m = {};
+      events.forEach(e => { m[e.event_category] = (m[e.event_category] || 0) + 1; });
+      return m;
+    }, [events]);
+
+    const total = filtered.length;
+
+    const scrollTo = useCallback((idx) => {
+      const vp = viewportRef.current;
+      if (!vp) return;
+      const card = vp.querySelector('.event-card');
+      if (!card) return;
+      const cardW = card.offsetWidth + 16;
+      vp.scrollTo({ left: idx * cardW, behavior: 'smooth' });
+      setCurrentSynced(idx);
+    }, [setCurrentSynced]);
+
+    const goTo = useCallback((idx) => {
+      let i = idx;
+      if (i < 0) i = total - 1;
+      if (i >= total) i = 0;
+      scrollTo(i);
+    }, [total, scrollTo]);
+
+
+    // one-card-at-a-time touch swipe
+    useEffect(() => {
+      const vp = viewportRef.current;
+      if (!vp) return;
+      let startX = 0;
+      let startY = 0;
+      let startLeft = 0;
+      let startIdx = 0;
+      let decided = false;
+      let isHoriz = false;
+
+      const cardWidth = () => {
+        const c = vp.querySelector('.event-card');
+        return c ? c.offsetWidth + 16 : 0;
+      };
+
+      const onTouchStart = (e) => {
+        startX    = e.touches[0].clientX;
+        startY    = e.touches[0].clientY;
+        startLeft = vp.scrollLeft;
+        startIdx  = currentRef.current;
+        decided   = false;
+        isHoriz   = false;
+      };
+
+      const onTouchMove = (e) => {
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+        if (!decided) {
+          if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+          isHoriz = Math.abs(dx) > Math.abs(dy);
+          decided = true;
+        }
+        if (!isHoriz) return;
+        e.preventDefault();
+        // follow finger (unclamped — wrap happens on touchend)
+        vp.scrollLeft = startLeft - dx;
+      };
+
+      const onTouchEnd = (e) => {
+        if (!isHoriz) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        const cw = cardWidth();
+        let next = startIdx;
+        if (dx < -30) next = startIdx === total - 1 ? 0 : startIdx + 1;
+        if (dx >  30) next = startIdx === 0 ? total - 1 : startIdx - 1;
+        vp.scrollTo({ left: next * cw, behavior: 'smooth' });
+        setCurrentSynced(next);
+      };
+
+      vp.addEventListener('touchstart', onTouchStart, { passive: true });
+      vp.addEventListener('touchmove',  onTouchMove,  { passive: false });
+      vp.addEventListener('touchend',   onTouchEnd,   { passive: true });
+      return () => {
+        vp.removeEventListener('touchstart', onTouchStart);
+        vp.removeEventListener('touchmove',  onTouchMove);
+        vp.removeEventListener('touchend',   onTouchEnd);
+      };
+    }, [total, setCurrentSynced]);
+
+
+
+    // keyboard nav
+    useEffect(() => {
+      const onKey = (e) => {
+        if (e.key === 'ArrowLeft')  goTo(currentRef.current - 1);
+        if (e.key === 'ArrowRight') goTo(currentRef.current + 1);
+      };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }, [goTo]);
+
+    const today = new Date().toLocaleDateString('id-ID', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    return React.createElement('div', null,
+
+      // ── header
+      React.createElement('header', { className: 'header' },
+        React.createElement('div', null,
+          React.createElement('div', { className: 'header-eyebrow' }, 'Acara Hari Ini'),
+          React.createElement('h1',  { className: 'header-title'  }, 'Snag It'),
+          React.createElement('div', { className: 'header-meta'   },
+            loading ? 'Memuat…' : error ? 'Gagal memuat — coba lagi' : `${today} · ${events.length} acara`
+          )
+        ),
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
+          React.createElement('a', { href: 'index.html', className: 'btn-back' }, '← Back'),
+          React.createElement('button', {
+            className: 'btn-refresh' + (refreshed ? ' confirmed' : ''),
+            onClick: handleRefresh,
+            disabled: loading,
+          }, refreshed ? '✓ Diperbarui' : '↻ Perbarui')
+        )
+      ),
+
+      // ── filter bar
+      React.createElement('div', { className: 'filter-bar', role: 'toolbar', 'aria-label': 'Filter kategori' },
+        CATEGORIES
+          .filter(c => c.key === 'all' || (counts[c.key] || 0) > 0)
+          .map(cat =>
+            React.createElement('button', {
+              key: cat.key,
+              className: 'filter-chip' + (activeCategory === cat.key ? ' active' : ''),
+              onClick: () => setCategory(cat.key),
+              'aria-pressed': activeCategory === cat.key,
+            },
+              cat.icon, ' ', cat.label,
+              cat.key !== 'all' && React.createElement('span', { className: 'chip-count' }, counts[cat.key] || 0)
+            )
+          )
+      ),
+
+      // ── main
+      React.createElement('main', { className: 'main' },
+        loading
+          ? React.createElement('div', { className: 'loading-state' },
+              React.createElement('div', { className: 'spinner' }),
+              'Memuat acara…'
+            )
+          : error
+          ? React.createElement('div', { className: 'empty-state' },
+              React.createElement('div', { className: 'empty-icon' }, '⚠️'),
+              React.createElement('h2', { className: 'empty-title' }, 'Gagal memuat'),
+              React.createElement('p',  { className: 'empty-body'  }, 'Tidak dapat terhubung ke server. Coba perbarui halaman.')
+            )
+          : total === 0 && activeCategory !== 'all'
+          ? React.createElement('div', { className: 'no-results' },
+              React.createElement('div', { style: { fontSize: '32px', marginBottom: '12px' } }, '🔍'),
+              React.createElement('p', { style: { color: 'var(--mocha)', fontSize: '14px', lineHeight: '1.6', padding: '0 24px' } },
+                'Tidak ada acara dalam kategori ini. Coba kategori lain.'
+              )
+            )
+          : total === 0
+          ? React.createElement('div', { className: 'empty-state' },
+              React.createElement('div', { className: 'empty-icon' }, '📭'),
+              React.createElement('h2', { className: 'empty-title' }, 'Belum ada acara hari ini'),
+              React.createElement('p',  { className: 'empty-body'  }, 'Acara baru akan muncul setelah pukul 12.00. Coba perbarui halaman nanti.')
+            )
+          : React.createElement('div', null,
+
+              React.createElement('div', { className: 'counter' }, `${current + 1} / ${total}`),
+
+              // scroll-snap carousel
+              React.createElement('div', { className: 'carousel-viewport', ref: viewportRef },
+                React.createElement('div', { className: 'carousel-track' },
+                  filtered.map((ev, i) =>
+                    React.createElement(EventCard, { key: ev.id || i, event: ev })
+                  )
+                )
+              ),
+
+              // nav arrows + dots
+              React.createElement('div', { className: 'carousel-nav' },
+                React.createElement('button', {
+                  className: 'nav-arrow',
+                  onClick: () => goTo(currentRef.current - 1),
+                  'aria-label': 'Sebelumnya',
+                }, arrow('left')),
+
+                React.createElement('div', { className: 'dots-container' },
+                  filtered.map((_, i) =>
+                    React.createElement('div', {
+                      key: i,
+                      className: 'dot' + (i === current ? ' active' : ''),
+                      onClick: () => goTo(i),
+                      role: 'button',
+                      'aria-label': `Acara ${i + 1}`,
+                    })
+                  )
+                ),
+
+                React.createElement('button', {
+                  className: 'nav-arrow',
+                  onClick: () => goTo(currentRef.current + 1),
+                  'aria-label': 'Berikutnya',
+                }, arrow('right'))
+              ),
+
+              React.createElement('p', { className: 'swipe-hint' }, 'Geser atau tekan ← → untuk melihat lainnya')
+            )
+      )
+    );
+  }
+
+  function arrow(dir) {
+    const d = dir === 'left' ? 'M10 12L6 8l4-4' : 'M6 4l4 4-4 4';
+    return React.createElement('svg', { width: 16, height: 16, viewBox: '0 0 16 16', fill: 'none' },
+      React.createElement('path', { d, stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' })
+    );
+  }
+
+  // ── EVENT CARD ──
+  function EventCard({ event }) {
+    const cat     = CATEGORIES.find(c => c.key === event.event_category);
+    const catLabel = cat?.label || 'Acara';
+    const catIcon  = cat?.icon  || '📌';
+    const gradient = GRADIENTS[event.event_category] || GRADIENTS.other;
+
+    return React.createElement('div', { className: 'event-card' },
+      React.createElement('div', { className: 'card-strip', style: { background: gradient } }),
+      React.createElement('div', { className: 'card-body' },
+        React.createElement('div', { className: 'card-category' }, catIcon, ' ', catLabel),
+        React.createElement('h2',  { className: 'card-title'    }, event.event_title),
+        event.event_info &&
+          React.createElement('p', { className: 'card-info' }, event.event_info),
+        React.createElement('hr', { className: 'card-divider' }),
+        event.event_time_place &&
+          React.createElement('div', { className: 'card-time' },
+            React.createElement('span', { className: 'card-icon' }, '📅'),
+            event.event_time_place
+          ),
+        event.event_registration &&
+          React.createElement('div', { className: 'card-registration' },
+            React.createElement('span', { className: 'card-icon' }, '🔗'),
+            event.event_registration
+          ),
+        React.createElement('a', {
+          className: 'btn-cta',
+          href: event.post_url,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        }, 'Lihat selengkapnya →')
+      )
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+</html>

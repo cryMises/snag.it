@@ -1,0 +1,14 @@
+{
+  "name": "Snag It",
+  "short_name": "Snag It",
+  "description": "Daily event discovery from Instagram",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#FDF6EE",
+  "theme_color": "#E8845A",
+  "icons": [
+    { "src": "images/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "images/favicon-32x32.png",    "sizes": "32x32",   "type": "image/png" },
+    { "src": "images/favicon-16x16.png",    "sizes": "16x16",   "type": "image/png" }
+  ]
+}
