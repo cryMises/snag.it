@@ -281,21 +281,25 @@
     /* ── DOTS ── */
     .dots-container {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 6px;
+      align-items: center;
+      gap: 5px;
       padding: 0 8px;
+      max-width: 216px;
     }
     .dot {
+      flex-shrink: 0;
       height: 7px;
       width: 7px;
       border-radius: 4px;
       background: var(--blush);
       cursor: pointer;
-      transition: transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94), background 0.2s;
-      transform-origin: left center;
+      transition: width 0.25s cubic-bezier(0.25,0.46,0.45,0.94), background 0.2s, opacity 0.2s;
     }
-    .dot.active { background: var(--terracotta); transform: scaleX(2.85); }
+    .dot.active { background: var(--terracotta); width: 20px; }
+    /* shrink dots that are far from active */
+    .dot.dot-sm { width: 5px; height: 5px; opacity: 0.5; }
+    .dot.dot-xs { width: 4px; height: 4px; opacity: 0.25; }
 
     .swipe-hint {
       text-align: center;
@@ -617,15 +621,29 @@
                 }, arrow('left')),
 
                 React.createElement('div', { className: 'dots-container' },
-                  filtered.map((_, i) =>
-                    React.createElement('div', {
-                      key: i,
-                      className: 'dot' + (i === current ? ' active' : ''),
-                      onClick: () => goTo(i),
-                      role: 'button',
-                      'aria-label': `Acara ${i + 1}`,
-                    })
-                  )
+                  (() => {
+                    const WIN = 7; // visible dot window
+                    const half = Math.floor(WIN / 2);
+                    let start = Math.max(0, current - half);
+                    let end = start + WIN - 1;
+                    if (end > total - 1) { end = total - 1; start = Math.max(0, end - WIN + 1); }
+                    const dots = [];
+                    for (let i = start; i <= end; i++) {
+                      const dist = Math.abs(i - current);
+                      let cls = 'dot';
+                      if (i === current) cls += ' active';
+                      else if (dist === half) cls += ' dot-xs';
+                      else if (dist >= half - 1) cls += ' dot-sm';
+                      dots.push(React.createElement('div', {
+                        key: i,
+                        className: cls,
+                        onClick: () => goTo(i),
+                        role: 'button',
+                        'aria-label': `Acara ${i + 1}`,
+                      }));
+                    }
+                    return dots;
+                  })()
                 ),
 
                 React.createElement('button', {
